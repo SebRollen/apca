@@ -103,7 +103,7 @@ mod test {
     use mockito::mock;
 
     #[tokio::test]
-    async fn test_get_positions() {
+    async fn get_positions() {
         let positions = format!("[{}]", POSITION);
         let _m = mock("GET", "/v2/positions")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
@@ -117,7 +117,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_get_position() {
+    async fn get_position() {
         let _m = mock("GET", "/v2/positions/AAPL")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

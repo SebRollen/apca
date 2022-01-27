@@ -78,7 +78,7 @@ mod test {
     use mockito::mock;
 
     #[tokio::test]
-    async fn test_get_account_configurations() {
+    async fn get_account_configurations() {
         let _m = mock("GET", "/v2/account/configurations")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -98,7 +98,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_patch_account_configurations() {
+    async fn patch_account_configurations() {
         let _m = mock("PATCH", "/v2/account/configurations")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

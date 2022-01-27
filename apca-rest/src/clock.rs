@@ -28,7 +28,7 @@ mod test {
     use mockito::mock;
 
     #[tokio::test]
-    async fn test_get_clock() {
+    async fn get_clock() {
         let _m = mock("GET", "/v2/clock")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

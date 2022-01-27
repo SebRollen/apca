@@ -2,6 +2,7 @@ use crate::utils::*;
 use chrono::{DateTime, NaiveDate, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use serde_with::CommaSeparator;
 use std::borrow::Cow;
 use uuid::Uuid;
 use vila::{Request, RequestData};
@@ -119,9 +120,31 @@ pub enum ActivityType {
     StockSplit,
 }
 
-#[derive(Clone, Debug, Serialize)]
+impl std::fmt::Display for ActivityType {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = serde_plain::to_string(self).unwrap();
+        formatter.write_str(&string)
+    }
+}
+
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct GetAccountActivities {
-    pub activity_type: Option<Vec<ActivityType>>,
+    #[serde(
+        skip_serializing_if = "Vec::is_empty",
+        with = "serde_with::rust::StringWithSeparator::<CommaSeparator>"
+    )]
+    pub activity_type: Vec<ActivityType>,
+}
+
+impl GetAccountActivities {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn add_activity(mut self, activity_type: ActivityType) -> Self {
+        self.activity_type.push(activity_type);
+        self
+    }
 }
 
 impl Request for GetAccountActivities {
@@ -144,7 +167,7 @@ mod test {
     use mockito::mock;
 
     #[tokio::test]
-    async fn test_get_account_activities() {
+    async fn get_account_activities() {
         let both_activities = format!("[{},{}]", TRADE_ACTIVITY, NONTRADE_ACTIVITY);
         let _m = mock("GET", "/v2/account/activities")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
@@ -154,12 +177,25 @@ mod test {
         let url = mockito::server_url();
         let client = client_with_url(&url, "APCA_API_KEY_ID", "APCA_API_SECRET_KEY");
 
-        let req = GetAccountActivities {
-            activity_type: None,
-        };
+        let req = GetAccountActivities::new();
         client.send(&req).await.unwrap();
     }
 
+    #[tokio::test]
+    async fn get_only_fill_account_activities() {
+        let fill_activities = format!("[{}]", TRADE_ACTIVITY);
+        let _m = mock("GET", "/v2/account/activities")
+            .match_header("apca-api-key-id", "APCA_API_KEY_ID")
+            .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
+            .match_query("activity_type=FILL")
+            .with_body(fill_activities)
+            .create();
+        let url = mockito::server_url();
+        let client = client_with_url(&url, "APCA_API_KEY_ID", "APCA_API_SECRET_KEY");
+
+        let req = GetAccountActivities::new().add_activity(ActivityType::Fill);
+        client.send(&req).await.unwrap();
+    }
     const TRADE_ACTIVITY: &'static str = r#"{
   		"activity_type": "FILL",
   		"cum_qty": "1",

@@ -90,7 +90,7 @@ mod test {
     use mockito::{mock, Matcher};
 
     #[tokio::test]
-    async fn test_get_portfolio_history() {
+    async fn get_portfolio_history() {
         let _m = mock("GET", "/v2/account/portfolio/history")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

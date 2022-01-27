@@ -52,7 +52,7 @@ mod test {
     use mockito::{mock, Matcher};
 
     #[tokio::test]
-    async fn test_get_calendar() {
+    async fn get_calendar() {
         let _m = mock("GET", "/v2/calendar")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

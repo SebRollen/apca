@@ -427,91 +427,26 @@ mod tests {
     use mockito::{mock, Matcher};
 
     #[test]
-    fn test_defaults() {
-        match OrderType::default() {
-            OrderType::Market => {} // Happy case
-            _ => panic!(),
-        };
-        match TimeInForce::default() {
-            TimeInForce::Day => {} // Happy case
-            _ => panic!(),
-        };
-        match OrderClass::default() {
-            OrderClass::Simple => {} // Happy case
-            _ => panic!(),
-        };
-        match Side::default() {
-            Side::Buy => {} // Happy case
-            _ => panic!(),
-        };
+    fn defaults() {
+        assert!(matches!(OrderType::default(), OrderType::Market));
+        assert!(matches!(TimeInForce::default(), TimeInForce::Day));
+        assert!(matches!(OrderClass::default(), OrderClass::Simple));
+        assert!(matches!(Side::default(), Side::Buy));
     }
 
     #[test]
     fn serde() {
-        let json = r#"{
-            "symbol":"AAPL",
-            "qty":"123",
-            "side":"buy",
-            "type":"limit",
-            "limit_price":"100",
-            "time_in_force":"gtc",
-            "extended_hours":false,
-            "client_order_id":"TEST",
-            "order_class":{
-                "bracket":{
-                    "take_profit":{
-                        "limit_price":301.0
-                    },
-                    "stop_loss":{
-                        "stop_price":299.0,
-                        "limit_price":298.5
-                    }
-                }
-            }
-        }"#;
-        let deserialized: OrderIntent = serde_json::from_str(json).unwrap();
+        let deserialized: OrderIntent = serde_json::from_str(ORDER_INTENT).unwrap();
         let _serialized = serde_json::to_string(&deserialized).unwrap();
     }
 
     #[tokio::test]
-    async fn test_get_order() {
+    async fn get_order() {
         let _m = mock("GET", "/v2/orders/904837e3-3b76-47ec-b432-046db621571b")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
             .match_query(Matcher::UrlEncoded("nested".into(), "false".into()))
-            .with_body(
-                r#"{
-			        "id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "client_order_id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "created_at": "2018-10-05T05:48:59Z",
-			        "updated_at": "2018-10-05T05:48:59Z",
-			        "submitted_at": "2018-10-05T05:48:59Z",
-			        "filled_at": "2018-10-05T05:48:59Z",
-			        "expired_at": "2018-10-05T05:48:59Z",
-			        "canceled_at": "2018-10-05T05:48:59Z",
-			        "failed_at": "2018-10-05T05:48:59Z",
-			        "replaced_at": "2018-10-05T05:48:59Z",
-			        "replaced_by": "904837e3-3b76-47ec-b432-046db621571b",
-			        "replaces": null,
-			        "asset_id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "symbol": "AAPL",
-			        "asset_class": "us_equity",
-			        "qty": "15",
-			        "filled_qty": "0",
-			        "type": "market",
-			        "side": "buy",
-			        "time_in_force": "day",
-			        "limit_price": "107.00",
-			        "stop_price": "106.00",
-			        "filled_avg_price": "106.00",
-			        "status": "accepted",
-			        "extended_hours": false,
-			        "legs": null,
-                    "trail_price": "1.05",
-                    "trail_percent": null,
-                    "hwm": "108.05"
-			    }"#,
-            )
+            .with_body(ORDER)
             .create();
         let url = mockito::server_url();
         let client = client_with_url(&url, "APCA_API_KEY_ID", "APCA_API_SECRET_KEY");
@@ -523,7 +458,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_get_orders() {
+    async fn get_orders() {
+        let orders = format!("[{}]", ORDER);
         let _m = mock("GET", "/v2/orders")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -533,44 +469,32 @@ mod tests {
                 Matcher::UrlEncoded("direction".into(), "desc".into()),
                 Matcher::UrlEncoded("nested".into(), "false".into()),
             ]))
-            .with_body(
-                r#"[{
-			        "id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "client_order_id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "created_at": "2018-10-05T05:48:59Z",
-			        "updated_at": "2018-10-05T05:48:59Z",
-			        "submitted_at": "2018-10-05T05:48:59Z",
-			        "filled_at": "2018-10-05T05:48:59Z",
-			        "expired_at": "2018-10-05T05:48:59Z",
-			        "canceled_at": "2018-10-05T05:48:59Z",
-			        "failed_at": "2018-10-05T05:48:59Z",
-			        "replaced_at": "2018-10-05T05:48:59Z",
-			        "replaced_by": "904837e3-3b76-47ec-b432-046db621571b",
-			        "replaces": null,
-			        "asset_id": "904837e3-3b76-47ec-b432-046db621571b",
-			        "symbol": "AAPL",
-			        "asset_class": "us_equity",
-			        "qty": "15",
-			        "filled_qty": "0",
-			        "type": "market",
-			        "side": "buy",
-			        "time_in_force": "day",
-			        "limit_price": "107.00",
-			        "stop_price": "106.00",
-			        "filled_avg_price": "106.00",
-			        "status": "accepted",
-			        "extended_hours": false,
-			        "legs": null,
-                    "trail_price": "1.05",
-                    "trail_percent": null,
-                    "hwm": "108.05"
-                }]"#,
-            )
+            .with_body(orders)
             .create();
         let url = mockito::server_url();
         let client = client_with_url(&url, "APCA_API_KEY_ID", "APCA_API_SECRET_KEY");
 
         client.send(&GetOrders::new()).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn submit_order() {
+        let _m = mock("POST", "/v2/orders")
+            .match_header("apca-api-key-id", "APCA_API_KEY_ID")
+            .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
+            .match_body(ORDER_INTENT)
+            .with_status(200)
+            .with_body(ORDER)
+            .create();
+        let url = mockito::server_url();
+        let client = client_with_url(&url, "APCA_API_KEY_ID", "APCA_API_SECRET_KEY");
+
+        let order_intent = OrderIntent::new("AAPL")
+            .qty(15)
+            .time_in_force(TimeInForce::Day)
+            .client_order_id("904837e3-3b76-47ec-b432-046db621571b".into());
+        let req = SubmitOrder(order_intent);
+        client.send(&req).await.unwrap();
     }
 
     #[tokio::test]
@@ -593,44 +517,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_cancel_order() {
+    async fn cancel_order() {
         let _m = mock("DELETE", "/v2/orders/904837e3-3b76-47ec-b432-046db621571b")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
             .with_status(204)
-            .with_body(
-                r#"{
-                    "id": "904837e3-3b76-47ec-b432-046db621571b",
-		    "client_order_id": "904837e3-3b76-47ec-b432-046db621571b",
-	            "created_at": "2018-10-05T05:48:59Z",
-		    "updated_at": "2018-10-05T05:48:59Z",
-		    "submitted_at": "2018-10-05T05:48:59Z",
-		    "filled_at": "2018-10-05T05:48:59Z",
-		    "expired_at": "2018-10-05T05:48:59Z",
-		    "canceled_at": "2018-10-05T05:48:59Z",
-		    "failed_at": "2018-10-05T05:48:59Z",
-		    "replaced_at": "2018-10-05T05:48:59Z",
-		    "replaced_by": "904837e3-3b76-47ec-b432-046db621571b",
-		    "replaces": null,
-		    "asset_id": "904837e3-3b76-47ec-b432-046db621571b",
-		    "symbol": "AAPL",
-		    "asset_class": "us_equity",
-		    "qty": "15",
-		    "filled_qty": "0",
-		    "type": "market",
-		    "side": "buy",
-		    "time_in_force": "day",
-		    "limit_price": "107.00",
-		    "stop_price": "106.00",
-		    "filled_avg_price": "106.00",
-		    "status": "accepted",
-		    "extended_hours": false,
-		    "legs": null,
-                    "trail_price": "1.05",
-                    "trail_percent": null,
-                    "hwm": "108.05"
-		}"#,
-            )
             .create();
 
         let url = mockito::server_url();
@@ -643,4 +534,38 @@ mod tests {
             .await
             .unwrap();
     }
+
+    const ORDER: &'static str = r#"{
+        "id": "904837e3-3b76-47ec-b432-046db621571b",
+	    "client_order_id": "904837e3-3b76-47ec-b432-046db621571b",
+	    "created_at": "2018-10-05T05:48:59Z",
+	    "updated_at": "2018-10-05T05:48:59Z",
+	    "submitted_at": "2018-10-05T05:48:59Z",
+	    "filled_at": "2018-10-05T05:48:59Z",
+	    "expired_at": "2018-10-05T05:48:59Z",
+	    "canceled_at": "2018-10-05T05:48:59Z",
+	    "failed_at": "2018-10-05T05:48:59Z",
+	    "replaced_at": "2018-10-05T05:48:59Z",
+	    "replaced_by": "904837e3-3b76-47ec-b432-046db621571b",
+	    "replaces": null,
+	    "asset_id": "904837e3-3b76-47ec-b432-046db621571b",
+	    "symbol": "AAPL",
+	    "asset_class": "us_equity",
+	    "qty": "15",
+	    "filled_qty": "0",
+	    "type": "market",
+	    "side": "buy",
+	    "time_in_force": "day",
+	    "limit_price": "107.00",
+	    "stop_price": "106.00",
+	    "filled_avg_price": "106.00",
+	    "status": "accepted",
+	    "extended_hours": false,
+	    "legs": null,
+        "trail_price": "1.05",
+        "trail_percent": null,
+        "hwm": "108.05"
+    }"#;
+
+    const ORDER_INTENT: &'static str = r#"{"symbol":"AAPL","qty":"15","side":"buy","type":"market","time_in_force":"day","extended_hours":false,"client_order_id":"904837e3-3b76-47ec-b432-046db621571b","order_class":"simple"}"#;
 }

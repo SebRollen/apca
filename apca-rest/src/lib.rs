@@ -1,38 +1,28 @@
 use vila::Client;
 
-mod account;
-mod account_activities;
-mod account_configurations;
-mod assets;
-mod calendar;
-mod clock;
-mod orders;
-mod portfolio_history;
-mod positions;
+pub mod account;
+pub mod account_activities;
+pub mod account_configurations;
+pub mod assets;
+pub mod calendar;
+pub mod clock;
+pub mod orders;
+pub mod portfolio_history;
+pub mod positions;
 mod utils;
-mod watchlists;
-pub use account::*;
-pub use account_activities::*;
-pub use account_configurations::*;
-pub use assets::*;
-pub use calendar::*;
-pub use clock::*;
-pub use orders::*;
-pub use portfolio_history::*;
-pub use positions::*;
-pub use watchlists::*;
+pub mod watchlists;
 
-pub fn paper_client(key: &str, secret: &str) -> Client {
+pub fn paper_client<T: AsRef<str>>(key: T, secret: T) -> Client {
     Client::new("https://paper-api.alpaca.markets").header_auth(vec![
-        ("apca-api-key-id", key),
-        ("apca-api-secret-key", secret),
+        ("apca-api-key-id", key.as_ref()),
+        ("apca-api-secret-key", secret.as_ref()),
     ])
 }
 
-pub fn live_client(key: &str, secret: &str) -> Client {
+pub fn live_client<T: AsRef<str>>(key: T, secret: T) -> Client {
     Client::new("https://api.alpaca.markets").header_auth(vec![
-        ("apca-api-key-id", key),
-        ("apca-api-secret-key", secret),
+        ("apca-api-key-id", key.as_ref()),
+        ("apca-api-secret-key", secret.as_ref()),
     ])
 }
 

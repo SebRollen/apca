@@ -66,7 +66,7 @@ mod test {
     use mockito::{mock, Matcher};
 
     #[tokio::test]
-    async fn test_get_assets() {
+    async fn get_assets() {
         let _m = mock("GET", "/v2/assets")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -99,7 +99,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_get_asset() {
+    async fn get_asset() {
         let _m = mock("GET", "/v2/assets/AAPL")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")

@@ -1,4 +1,4 @@
-use crate::Asset;
+use crate::assets::Asset;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -136,7 +136,7 @@ mod test {
     use mockito::mock;
 
     #[tokio::test]
-    async fn test_get_watchlists() {
+    async fn get_watchlists() {
         let watchlist_list = format!("[{}]", WATCHLIST);
         let _m = mock("GET", "/v2/watchlists")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
@@ -151,7 +151,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_get_watchlist() {
+    async fn get_watchlist() {
         let _m = mock("GET", "/v2/watchlists/1d5493c9-ea39-4377-aa94-340734c368ae")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -165,7 +165,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_create_watchlist() {
+    async fn create_watchlist() {
         let _m = mock("POST", "/v2/watchlists")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -183,7 +183,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_update_watchlist() {
+    async fn update_watchlist() {
         let _m = mock("PUT", "/v2/watchlists/1d5493c9-ea39-4377-aa94-340734c368ae")
             .match_header("apca-api-key-id", "APCA_API_KEY_ID")
             .match_header("apca-api-secret-key", "APCA_API_SECRET_KEY")
@@ -202,7 +202,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_add_asset_to_watchlist() {
+    async fn add_asset_to_watchlist() {
         let _m = mock(
             "POST",
             "/v2/watchlists/1d5493c9-ea39-4377-aa94-340734c368ae",
@@ -223,7 +223,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_remove_asset_from_watchlist() {
+    async fn remove_asset_from_watchlist() {
         let _m = mock(
             "DELETE",
             "/v2/watchlists/1d5493c9-ea39-4377-aa94-340734c368ae/FB",
@@ -242,7 +242,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_delete_watchlist() {
+    async fn delete_watchlist() {
         let _m = mock(
             "DELETE",
             "/v2/watchlists/1d5493c9-ea39-4377-aa94-340734c368ae",
