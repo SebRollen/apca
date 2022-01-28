@@ -4,14 +4,36 @@ use std::borrow::Cow;
 use vila::Request;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+/// Clock object
 pub struct Clock {
+    /// Current timestamp
     pub timestamp: DateTime<Utc>,
+    /// Whether or not the market is open
     pub is_open: bool,
+    /// Next market open timestamp
     pub next_open: DateTime<Utc>,
+    /// Next market close timestamp
     pub next_close: DateTime<Utc>,
 }
+
 #[derive(Clone, Debug)]
+/// Returns the market clock.
+///
+/// # Examples
+/// ```no_run
+/// use apca_rest::{
+///     clock::{Clock, GetClock},
+///     paper_client,
+/// };
+/// #[tokio::main]
+/// async fn main() -> Result<(), vila::Error> {
+///     let client = paper_client("KEY", "SECRET");
+///     let clock: Clock = client.send(&GetClock).await?;
+///     Ok(())
+/// }
+/// ```
 pub struct GetClock;
+
 impl Request for GetClock {
     type Data = ();
     type Response = Clock;

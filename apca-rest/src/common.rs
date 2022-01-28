@@ -2,42 +2,62 @@ use serde::{Deserialize, Serialize};
 use std::convert::From;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum AssetClass {
-    UsEquity,
-    Crypto,
+#[derive(Serialize, Clone, Debug)]
+/// Sort settings
+pub enum Sort {
+    #[serde(rename = "asc")]
+    /// Ascending sort
+    Ascending,
+    #[serde(rename = "desc")]
+    /// Descending sort
+    Descending,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-pub enum Exchange {
-    Amex,
-    Arca,
-    Bats,
-    Nyse,
-    Nasdaq,
-    NyseArca,
-    Otc,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "snake_case")]
-pub enum Status {
-    Active,
-    Inactive,
-}
-
-impl Default for Status {
+impl Default for Sort {
     fn default() -> Self {
-        Status::Active
+        Sort::Descending
     }
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+#[non_exhaustive]
+/// Types of asset classes supported
+pub enum AssetClass {
+    /// US equities
+    UsEquity,
+    /// Crypto
+    Crypto,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+#[serde(rename_all = "UPPERCASE")]
+/// Listing of exchanges
+pub enum Exchange {
+    /// American Stock Exchange
+    Amex,
+    /// Arca
+    Arca,
+    /// BATS
+    Bats,
+    /// New York Stock Exchange
+    Nyse,
+    /// NASDAQ
+    Nasdaq,
+    /// NYSE Arca
+    NyseArca,
+    /// Over the counter
+    Otc,
+    /// Crypto only
+    ErisX,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Identifier that can be used to find an asset at Alpaca
 pub enum Identifier {
+    /// Symbol, optionally with exchange and asset class
     Symbol(String, Option<(String, Option<String>)>),
+    /// Unique asset id
     AssetId(Uuid),
 }
 

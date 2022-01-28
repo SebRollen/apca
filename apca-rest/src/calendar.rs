@@ -5,24 +5,64 @@ use std::borrow::Cow;
 use vila::{Request, RequestData};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+/// Calendar object
 pub struct Calendar {
+    /// Date of calendar.
     pub date: NaiveDate,
     #[serde(deserialize_with = "hm_from_str", serialize_with = "hm_to_string")]
+    /// The time the market opens at on this date.
     pub open: NaiveTime,
     #[serde(deserialize_with = "hm_from_str", serialize_with = "hm_to_string")]
+    /// The time the market closes at on this date.
     pub close: NaiveTime,
 }
 
 #[derive(Serialize, Clone, Debug)]
+/// Returns the market calendar.
+///
+/// # Examples
+/// ```no_run
+/// use apca_rest::{
+///     calendar::{Calendar, GetCalendar},
+///     paper_client,
+/// };
+/// use chrono::NaiveDate;
+/// #[tokio::main]
+/// async fn main() -> Result<(), vila::Error> {
+///     let client = paper_client("KEY", "SECRET");
+///     let cal: Vec<Calendar> = client
+///         .send(
+///             &GetCalendar::new()
+///                 .start(NaiveDate::from_ymd(2020, 1, 1))
+///                 .end(NaiveDate::from_ymd(2020, 12, 31)),
+///         )
+///         .await?;
+///     Ok(())
+/// }
 pub struct GetCalendar {
-    pub start: NaiveDate,
-    pub end: NaiveDate,
+    start: NaiveDate,
+    end: NaiveDate,
 }
+
 impl GetCalendar {
+    /// Create a new request
     pub fn new() -> Self {
         Default::default()
     }
+
+    /// Filter the calendar to start at this date (inclusive)
+    pub fn start(mut self, start: NaiveDate) -> Self {
+        self.start = start;
+        self
+    }
+
+    /// Filter the calendar to end before this date (exclusive)
+    pub fn end(mut self, end: NaiveDate) -> Self {
+        self.end = end;
+        self
+    }
 }
+
 impl Default for GetCalendar {
     fn default() -> Self {
         Self {

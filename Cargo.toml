@@ -1,2 +1,2 @@
 [workspace]
-members = ["apca-core", "apca-rest"]
+members = ["apca-rest"]
